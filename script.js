@@ -9,7 +9,8 @@ const addCell = (row, extraClass, shortAtd) => {
     };
     cell.innerText = extraClass;
     row.append(cell);
-}
+};
+
 const addHeadingCell = (headingRow) => {
     let cell = document.createElement("td");
     cell.setAttribute("width", "2%");
@@ -19,7 +20,6 @@ const addHeadingCell = (headingRow) => {
     cell.innerText = 'Bunks/Extra Class';
     headingRow.append(cell);
 };
-
 
 const addInstructions = () => {
     let div = document.querySelector("#attendanceResultDiv");
@@ -32,7 +32,7 @@ const addInstructions = () => {
 
     div.append(green);
     div.append(red);
-}
+};
 
 const noOfextraClass = (attended, deliverd) => {
     const target = 75;
@@ -62,7 +62,7 @@ const noOfextraClass = (attended, deliverd) => {
         per = (attended / deliverd) * 100;
         return {extraClass, per, shortAtd};
     }
-}
+};
 
 const mainFunc = () => {
     try {
@@ -73,20 +73,33 @@ const mainFunc = () => {
         for (let i = 2; i <= noOfSubjects; i++) {
             const row = document.querySelector(`#attendanceResultDiv > table > tbody > tr:nth-child(${i})`);
             const attended = row.children[6];
+            const dutyLeave = parseInt(row.children[7].innerText);
+            const medicalLeave = parseInt(row.children[8].innerText);
             const deliverd = row.children[9];
-            const numAtn = parseInt(attended.innerText);
-            const numDel = parseInt(deliverd.innerText);
+            let numAtn = parseInt(attended.innerText) + dutyLeave + medicalLeave;
+            let numDel = parseInt(deliverd.innerText) + dutyLeave + medicalLeave;
             const {extraClass, per, shortAtd} = noOfextraClass(numAtn, numDel);
             addCell(row, extraClass, shortAtd);
         }
         addInstructions();
-    }catch{
-        setTimeout(function(){
+    } catch {
+        console.log('It Failed to run one time.')
+        setTimeout(function () {
             mainFunc();
         }, 2000)
-    }
+    };
+};
+
+const semesterChange = ()=>{
+    const mySelectElement = document.querySelector("#semesterDetail");
+    mySelectElement.addEventListener('change', function() {
+        setTimeout(function(){
+            mainFunc();
+        },1000);    
+    });
 };
 
 setTimeout(function () {
     mainFunc();
-}, 2000);
+    semesterChange();
+}, 1000);
