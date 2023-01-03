@@ -1,3 +1,4 @@
+
 //This function adds a new cell at the end of the row:
 const addCell = (row, bunks, shortAtd) => {
     //Making the new cell exactly the same as chalkpad-official ones:
@@ -25,23 +26,59 @@ const addHeadingCell = (headingRow) => {
     cell.setAttribute("align", "center");
     cell.classList.add("searchhead_text");
     cell.setAttribute("border", "0");
-    cell.innerText = 'Bunks/Extra Class';
+    cell.innerText = `Bunks/Extra Class (${document.querySelector('#targetAtn').value}%)`;
     headingRow.append(cell);
 };
+
+const addTargetAtd = () => {
+    const mainDiv = document.querySelector("#attendance > table > tbody > tr:nth-child(1) > td > table:nth-child(2) > tbody > tr:nth-child(3) > td");
+
+    const noBrLabel = document.createElement('nobr');
+    let boldLabel = document.createElement("b");
+
+    boldLabel.innerText = 'Target Attendence: ';
+    noBrLabel.append(boldLabel);
+    
+    const targetAtdSelect = document.createElement('select');
+    targetAtdSelect.setAttribute('id', 'targetAtn');
+    targetAtdSelect.classList.add("selectfield");
+    targetAtdSelect.setAttribute('size', 1);
+
+    const nintyPer = document.createElement('option');
+    nintyPer.setAttribute('value', '90');
+    nintyPer.setAttribute('selected', "SELECTED");
+    nintyPer.innerText = 90;
+
+    const seventyFivePer = document.createElement('option');
+    seventyFivePer.setAttribute('value', '75');
+    seventyFivePer.innerText = 75;
+    
+    const sixtyFivePer = document.createElement('option');
+    sixtyFivePer.setAttribute('value', '65');
+    sixtyFivePer.innerText = 65;
+
+    targetAtdSelect.appendChild(nintyPer);
+    targetAtdSelect.appendChild(seventyFivePer);
+    targetAtdSelect.appendChild(sixtyFivePer);
+
+    mainDiv.prepend(targetAtdSelect);
+    mainDiv.prepend(noBrLabel);
+}
 
 //This function adds instructions as to what red and green colors mean:
 const addInstructions = () => {
     //Selecting the div where i want to add instructions:
-    let div = document.querySelector("#attendanceResultDiv");
+    let div = document.querySelector("#attendance > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(1) > td.contenttab_border2 > table > tbody > tr:nth-child(1) > td");
 
     //Creating new element -> Adding style to it -> adding text to it:
     let green = document.createElement("p");
-    green.innerText = 'Green: How many classes you can bunk without it falling below 75%.';
+    const targetValue = document.querySelector('#targetAtn').value;
+    green.innerText = `2. Green: Number of classes you can bunk while maintaining attendance to target attendance.`;
     green.setAttribute("style", "color: #82CD47");
 
     //Creating new element -> Adding style to it -> adding text to it:
     let red = document.createElement("p");
-    red.innerText = 'Red: How many classes you have to attend to make your attendence 75%';
+    red.innerText = `3. Red: Number of classes you have to attend to increase your attendence to target attendence.`;
     red.setAttribute("style", "color: #DC3535 ");
 
     //Appending both the elements to the selected div:
@@ -52,7 +89,7 @@ const addInstructions = () => {
 //This function calculates the number of classes you can bunk or have to attend:
 const noOfBunks = (attended, deliverd) => {
     
-    const target = 75;//In future updates user will have option to change the target attendence: 
+    const target = parseInt(document.querySelector('#targetAtn').value);//In future updates user will have option to change the target attendence: 
 
     //declaring variables: bunks->number of classes student can bunk, shortAtd->if students has attendence less thean 75% it will be set to true and student will have to attend extra classes to compensate for it:
     let bunks = 0;
@@ -96,7 +133,6 @@ const noOfBunks = (attended, deliverd) => {
     }
 };
 
-//This fuction is heart of the code:
 const mainFunc = () => {
     //Try and catch because if the first time page isn't loaded fully and error happens it will try to do it again.
     try {
@@ -125,7 +161,6 @@ const mainFunc = () => {
             addCell(row, bunks, shortAtd); //adds new cell to each row
         }
 
-        addInstructions(); //adds the instructions
     } catch { //This is in case code failes to run first time because it couldn't get data from chalkpad
         console.log('It Failed to run one time.')
         setTimeout(function () {
@@ -134,19 +169,32 @@ const mainFunc = () => {
     };
 };
 
+addTargetAtd(); //adds the instructions
+addInstructions();
+
 //this function is incase student tries to change the semester:
-const semesterChange = ()=>{
+const semesterChange = () => {
     //Selects the select element listens for changes to happen to it:
     const mySelectElement = document.querySelector("#semesterDetail");
     mySelectElement.addEventListener('change', function() {
         setTimeout(function(){
             mainFunc(); //runs the mainFunc again if any changes happen to the select element
-        },1200);
+        },1900);
     });
 };
+
+
+const targetAtdChange = () => {
+    const targetAtn = document.querySelector("#targetAtn");
+    targetAtn.addEventListener('change', function() {
+        mainFunc();
+    });
+}
 
 //This calls the mainFunc and semesterChange after 1.5 seconds after the page has loaded
 setTimeout(function () {
     mainFunc();
     semesterChange();
+    targetAtdChange();
 }, 1500);
+
